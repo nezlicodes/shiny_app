@@ -28,7 +28,11 @@ body <- dashboardBody(
         tabPanel("Tab1", "Content for tab1"),
         tabPanel("Tab2", "content for Tab2")
       )
-      )
+      ),
+    tabItem(
+      tabName = "data",
+      tableOutput("IMData")
+    )
   ),
   textOutput("molecule")
 )
@@ -39,10 +43,17 @@ ui <- dashboardPage(header = header,
                     body = body
 )
 
-server <- function(input, output) {
+server <- function(input, output, session) {
   output$molecule <- renderPrint({
     input$molecule
   })
+  reactiveIMData <- reactiveFileReader(
+    intervalMillis = 1000,
+    session = session,
+    filePath = "IM.csv",
+    readFunc = read.csv
+  )
+  output$IMData <- reactiveIMData()
 }
 
 shiny::shinyApp(ui, server)
